@@ -15,7 +15,6 @@ public class FirstController {
     //niceToMeetYou()메서드 앞에 @GetMapping을 추가한다. 그러면 자동으로 겟매핑 패키지가 임포트 된다.
     //겟매핑 주소안에는 /hi 주소를 넣어준다. @GetMapping("/hi")
     @GetMapping("/hi")
-
     // niceToMeetYou() 메서드에 Model 타입의 model 매개 변수를 추가
     public String niceToMeetYou(Model model) {
 
@@ -33,5 +32,16 @@ public class FirstController {
         // 만 반환값으로 적어주면 된다. 즉 return "greetings";로 적어 주면 서버가 알아서 templates 디렉토리에서
         // greetings.mustache 파일을 찾아 웹 브라우저로 전송한다.
         return "greetings"; // greetings.mustache 파일 반환
+    }
+
+    // localhost:8080/bye
+    @GetMapping("/bye")
+    // 컨트롤러 안에 /bye 요청을 처리할 seeYouNext()메서드를 만들었다. 그리고 매개변수로 model 객체를 받아옴.
+    public String SeeYouNext(Model model) {
+
+        // 등록할 변수명과 변숫값을 적어준다. model -> key , value
+        model.addAttribute("nickname", "홍길동");
+
+        return "goodbye"; // goodbye.mustache 파일 반환
     }
 }
