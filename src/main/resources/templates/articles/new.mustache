@@ -1,10 +1,20 @@
 <!--헤더 레이아웃 적용-->
 {{>layouts/header}}
 
-<form action="">
-    <input type="text">
-    <textarea></textarea>
-    <button type="submit"></button>
+<form class="container" action="/articles/create" method="post">
+<!--부트스트랩 적용-->
+<div class="mb-3">
+    <label for="form-label">제목</label>
+    <input type="text" class="form-control" name="title"> <!--DTO의 title 필드와 연결-->
+</div>
+
+<div class="mb-3">
+    <label for="form-label">내용</label>
+    <textarea class="form-control" rows="3" name="content"></textarea> <!--DTO의 content 필드와 연결-->
+</div>
+
+<button type="submit" class="btn btn-primary">Submit</button>
+
 </form>
 
 <!--푸터 레이아웃 적용-->

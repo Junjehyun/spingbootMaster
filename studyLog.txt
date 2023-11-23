@@ -282,24 +282,176 @@ DTO로 받은 데이터는 최종적으로 데이터베이스에 저장된다. �
 
 2. 그 다음에 코딩을 좀 한다.
 ①@Controller를 입력해 이 파일이 컨트롤러 임을 선언한다.
+
 ②뷰 페이지를 보여주기 위해서 newArticleForm() 메서드를 추가하고 반환값으로 뷰 페이지의 이름을 적는다(리턴 값) 이때
 articles 이렉터리를 만들고 new.mustache 뷰페이지를 추가 했으므로 파일 경로까지 포함해 return "articles/new";라고 입력.
+
 ③URL 요청을 접수한다. localhost:8080/article/new에 뷰 페이지를 반환할 수 있도록 @GetMapping("article/new")라고 입력.
 
-책기준 124페이지.. 저녁에 돌아와서 다시 하자 위의 명령대로 컨트롤러 만들어서 작성하면 됨. ArticleController
-
-
-
-
-
-
-
-
-
-
-
-
+실행은 되는데 화면이 전혀 안예쁘다... 부트스트랩 CSS 코드로 이 부분에 디자인을 적용해보자.
+new.mustache 파일의 <form></form> 태그 부분을 다음과 같이 수정한다. 이 코드는 <input>태그와 <textarea> 태그의 디자인 요소만
+바꾼 것이다. 여기서는 폼 데이터를 전송하는 실습이 목적이므로 CSS 코드에 관한 자세한 설명은 생략.
 -----------------------------------------------
+23/11/23
+다시한다. 127부터
+
+3.2.3 폼 데이터 전송
+①localhost:8080/articles/new 들어가보면 부트스트랩 적용 되어있다. 근데 submit눌러도 아무 소용 없다.
+<form>태그를 입력할 때 2가지 정보(데이터를 어디로, 어떻게 보낼지에 대한 정보)를 주지 않았기 때문이다.
+
+②<form>태그에 이 2가지 정보를 추가 해보겠다. 어디에 보낼지는 action속성, 어떻게 보낼지는 method속성으로 설정한다.
+
+action: URL연결 주소를 적어 action"/articles/create"로 설정, localhost:8080/articles/create 페이지로 폼 데이터를 보낸다는 의미.
+method: 속성 값으로 get과 post, 2가지를 설정할 수 있다. 여기서는 method="post" 방식으로 설정한다. 두 방식의 차이는 나중에 설명.
+
+3.2.4 폼 데이터 받기
+action, method 속성 정보를 설정했으니 서버의 컨트롤러가 이 정보를 조합해서 사용자가 전송한 폼 데이터를 받도록 한다.
+ArticleController를 열고 다음과 같이 수정
+① 컨트롤러에 createArticle() 메서드를 추가하고 형식을 맞추기 위해 return값에는 빈 문자를 적는다.
+② 그 다음 URL 요청을 받아야하는데, 여기서는 @PostMapping을 사용한다. 뷰 페이지에서 폼 데이터를 post방식으로 전송했으므로,
+컨트롤러에서 받을 때도 @PostMapping()으로 받는다. 이떄 괄호 안에는 받은 URL 주소를 넣는다. new.mustache에서
+<form>태그에 action="/articles/create"로 설정했으므로  @PostMapping("/articles/create")작성.
+
+3.2.5 DTO 만들기
+앞서 컨트롤러에서 폼 데이터를 받을 때 DTO(Data Transfer Object)에 담는다고 배웠으니 DTO를 배워보자.
+① DTO를 작성하기 위해 새 피키지를 만들자. com.example.firstproject에 dto 패키지 추가.
+② 여기에 ArticleForm.java 하나 더 생성해서 dto 패키지에 클래스 추가해라.
+③ 입력 폼에서 제목과 내용을 전송할 예정이니 DTO에도 2개의 필드가 필요하다. 필드 2개 title과 content를 선언
+④ content 필드 다음 행에서 마우스 오른쪽을 누르고 Generate -> Constructor를 선택한다. 컨트롤키를 누른채
+title:String과 content:String을 선택한 후 OK를 눌리면 자동으로 생성자가 추가된다.
+⑤ 폼 데이터를 잘 받은지 확인하기 위해 toString()메서드를 추가하겠다. ArticleForm() 메서드 아래 행에서 마우스 오른 쪽 버튼을
+누르고 Generate -> toString()을 선택. title:String과 content:String이 선택된 것을 확인하고 OK버튼을 클릭하면 toString()
+메서드가 추가된다.
+
+3.2.6 폼 데이터를 DTO에 담기
+이제 전송받은 폼 데이터를 DTO에 담아본다. ArticleController에 가서 코드를 다음과 같이 수정한다.
+① 폼에서 전송한 데이터를 createArticle() 메서드의 매개변수로 받아온다. DTO로 만든 클래스 이름이 ArticleForm이므로
+ArticleForm 타입의 form 객체를 매개변수로 선언한다.
+② 폼에서 전송한 데이터가 DTO에 잘 담겻는지 확인하기 위해 출력문을 추가한다. 출력문은 4장에서 로깅하는 방식으로 바꿀건데,
+아직 로깅을 배우기 전이니 sysout문을 사용한다. form 객체의 toString()메서드를 호출해 출력.
+
+3.2.7 입력 폼과 DTO 필드 연결하기
+입력 폼에서 전송한 데이터를 DTO로 받기 위해 필드 2개, title과 content를 선언했다. 이 필드에 값이 들어가려면
+new.mustache입력 폼에 필드명을 지정해줘야한다. 그래야 해당 입력 폼이 DTO 필드와 연결된다.
+1. new.mustache에 다음과 같이 속성을 추가한다.
+① 제목을 입력하는 <input>태그에 name="title"속성을 추가한다.
+② 내용을 입력하는 <textarea> 태그에 name="content" 속성을 추가한다.
+이렇게 DTO의 필드명과 동일한 이름을 name의 속성 값으로 써 주면 입력 폼에서 작성한 두 데이터가 DTO의 해당 필드와 연결된다.
+
+2. 서버를 재시작한다. 브라우저를 새로 고침하고 제목은 abcd, 내용은 1234를 입력한 후 [Submit] 버튼을 클릭한다. 인텔리제이
+하단 실행창에서 ArticleForm의 데이터가 title='abcd', content='1234'로 출력된 것을 확인할 수 있다.
+
+지금까지 과정을 요약하면 다음과 같다.
+1. 뷰 페이지 (new.mustache)를 만들고 <form>태그의 action 속성으로 데이터를 어디 보낼지 (action="/articles/create")
+, method 속성으로 데이터를 어디에 보낼지 method="post"로 정의한다.
+
+2. 컨트롤러(ArticleController.java)를 만들고 PostMapping방식으로 URL 주소를 연결(@PostMapping("articles/create"))한다.
+
+3. 전송받은 데이터를 담아 둘 객체인 DTO(ArticleForm.java)를 만든다.
+
+4. 컨트롤러에서 폼 데이터를 전송받아 DTO에 담는다.
+
+3.3
+DTO를 데이터베이스에 저장하기
+
+지금까지 웹 브라우저에서 전송한 폼 데이터를 컨트롤러로 받아 오는 예제를 연습했다. 이 절에서는 받은 데이터를 데이터베이스에
+저장하는 예제를 실습해 보겠다.
+
+3.3.1
+데이터베이스와 JPA
+데이터베이스란 쉽게 말해 데이터를 관리하는 창고다. 쉽게 말하면 엑셀 파일과 비슷하다. 엑셀 파일을 보면 각 셀에 데이터를 저장한다.
+DB의 모든 데이터도 행과 열로 구성된 테이블에 저장해 관리한다.
+
+DB 프로그램은 MySQL, Oracle, MariaDB 등 다양한 종류가 있다. 여기서는 H2 DB를 사용하겠다.
+DB에 데이터를 기록하려면 어떻게 해야 할까? 자바 언어로 "데이터 좀 기록해 줘." 라고 하면 안된다. DB는 자바 언어를 이해못한다.
+스프링 부트는 자바 언어를 사용하지만 DB는 SQL이라는 언어를 사용하기 때문이다.
+
+그러면 어떻게 DB에 자바로 명령을 내릴 수 있을까? 바로 JPA를 사용하면 된다. JPA란 자바 언어로 DB에 명령을 내리는 도구로,
+데이터를 객체 지향적으로 관리할 수 있게 해준다.
+
+JPA의 핵심도구로는 엔티티와 레파지토리가 있다.
+엔티티(Entity): 자바 객체를 DB가 이해할 수 있게 만든 것으로, 이를 기반으로 테이블이 만들어진다.
+레파지토리(Repository): 엔티티가 DB속 테이블에 저장 및 관리될 수 있게 하는 인터페이스다.
+
+이번에는 앞에서 DTO로 받은 폼 데이터를 DB에 저장하는 예제를 해본다. 실습 순서는
+1) DTO를 엔티티로 변환하기 -> 2) 레파지토리를 이용해 엔티티를 DB에 저장하기
+
+3.3.2 DTO를 엔티티로 변환하기
+
+1. 먼저 DTO를 엔티티로 변환해보자
+① 현재 ArticleController에는 articles/create 주소로 URL 요청이 들어왔을 때 폼 데이터를 받아 출력하는 코드가 있다.
+여기에다가 앞으로 할 작업을 주석으로 작성해 놓고 시작한다.
+② DTO를 엔티티로 변환하기 위해 form객체의 toEntity()라는 메서드를 호출해서 그 반환값을 Article 타입의 article 엔티티에 저장한다.
+근데 Article과 toEntity()에 빨간색 오류가 뜬다. 아직 Article클래스와 toEntity() 메서드를 만들지 않았기 때문
+
+2. Article 클래스 코드를 작성해보자
+① 이 클래스가 엔티티임을 선언하기 위해 @Entity어노테이션 추가, @Entity는 JPA에서 제공하는 어노테이션이다.
+이 어노테이션이 붙은 클래스를 기반으로 DB에 테이블이 생성된다. 테이블 이름은 클래스 이름과 동일하게 Article로 생성
+
+② DTO코드를 작성할 때와 같이 title, content필드를 선언한다. 두 필드도 DB에서 인식할 수 있게 @Column 어노테이션을 붙인다.
+두 필드가 DB 테이블의 각 열(Column)과 연결된다.
+
+③ 마지막으로 엔티티의 대표값을 넣는다. 대표값을 id로 선언하고 @Id 어노테이션을 붙인다. 이어서 @GeneratedValue 어노테이션도
+붙여서 대표값을 자동으로 생성하게 한다. 예(1,2,3) 대표값은 사람으로 따지면 주민등록 번호와 같다. Article 엔티티 중에 제목과 내용이
+같은 것이 있더라도 대표값 id로 다른 글임을 구분할 수 있다.
+
+이렇게 해서 엔티티 클래스를 선언했다.
+
+3. Article 객체의 생성 및 초기화를 위해 생성자를 추가한다. 코드 자동 생성 기능을 사용해 보겠다. content 필드 아래에서
+마우스 오른쪽 버튼을 누르고 Generate -> Constructor를 선택 컨트롤을 누른 채 id:Long title:String content:String을 모두 선택 후 OK
+이어서 toString() 메서드도 추가한다. 생성자 아래에서 마우스 오른쪽 버튼을 누르고 Generate -> toString()을 선택한다.
+id:Long title:String content:String이 모두 선택 된 것을 확인하고 OK.
+
+toEntity()메서드 추가하기
+다음으로 toEntity()메서드를 만들어보겠다. toEntity()메서드는 DTO인 form객체를 엔티티 객체로 변환하는 역할을 한다.
+
+1. 빨간색으로 표시된 toEntity()에 마우스를 올리고 잠시 기다리면 해당 메서드를 만들 수 있는 링크가 뜬다. 거기서 넣어라.
+
+2. toEntity()메서드에서는 폼 데이터를 담은 DTO객체를 엔티티로 반환한다. (return new Article();)
+전달값은 Article 클래스의 생성자 형식에 맞게 작성하면 된다. Article.java에서 생성자를 확인해보면, id, title, content를
+매개변수로 하고있다. 아직 ArticleForm 객체에 id 정보는 없으므로 첫 번째 잘달값은 null, 두 번째 전달값은 title, 세 번째 전달값은
+content를 입력한다.
+
+3. ArticleController에 가보면 toEntity() 메서드의 오류표시가 사라진걸 볼 수 있다. 이렇게 해서 DTO를 엔티티로 변환하는 과정을 마쳤다.
+
+3.3.3
+레파지토리로 엔티티를 DB에 저장하기
+다음으로 레파지토리로 엔티티를 DB에 저장한다. ArticleController에 레파지토리가 있다는 가정하에 코드를 작성한다.
+① articleRepository.save() 메서드를 호출해 article엔티티를 저장한다. save()메서드는 저장된 엔티티를 반환하므로
+이를 Article타입의 saved라는 객체에 받아온다. 그런데 articleRepository 부분에 오류가 뜬다.
+이는 articleRepository 객체를 선언하지 않고 사용했기 때문
+
+② 필드 선언부에 ArticleRepository 타입의 articleRepository 객체를 선언한다.
+메모 놓친거 많다 2회독때 채워넣기
+
+4장
+롬복과 리팩터링
+
+3장에서 폼 데이터를 DB에 저장해봤다. 실습을 진행하면서 DTO, 컨트롤러, 엔티티 등 많은 코드를 작성했다.
+이장 에서는 코드를 간소화한다. -> 롬복을 소개
+
+롬복 -> 코드를 간소화해주는 라이브러리
+build.gradle에 롬복 의존성 추가
+이건 별로 안어려우니 책만보고 하자.
+
+5장
+게시글 읽기: READ
+3~4장에서는 웹 페이지에서 전송한 폼 데이터를 DB에 저장하는 데이터 생성 과정을 살폈다.
+이 장에서는 DB에 저장된 데이터를 조회해 웹 페이지에 출력해보겠다.
+
+오늘여기까지~
+-----------------------------------------------
+23/11/24 5장(200p)부터 진행~
+
+
+
+
+
+
+
+
+
+
 
 
 
